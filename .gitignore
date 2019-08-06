@@ -1,7 +1,7 @@
 */__pycache__/*
-AID/dbpedia-3.8-en.hdt
-AID/dbpedia-3.8-en.hdt.index.v1-1
-AID/settings_local.py
+dbpedia-3.8-en.hdt
+dbpedia-3.8-en.hdt.index.v1-1
+settings_local.py
 *.pyc
 
 # Byte-compiled / optimized / DLL files

@@ -7,17 +7,9 @@ from settings import (
     HDT_FILE, DATASET_FILE, OUTPUT_DATASET_FILE, STATS_FILE,
     PREDICATES_EXCLUDED, QUERY, RATIO)
 
-from hdt import HDTDocument
 import pandas as pd
-
-
-# HDTDocument creation
-document = HDTDocument(HDT_FILE)
-
-# Se hace la consulta de los triples en funcion del sujeto/predicado/objeto
-(triples, cardinality) = document.search_triples("", "", "")
-
-print("{} objetos.".format(cardinality))
+from hdt import HDTDocument
+from helpers import query
 
 
 class HDTPrompt(Cmd):
@@ -44,20 +36,27 @@ class HDTPrompt(Cmd):
         print("Default: {}".format(inp))
 
 
-    def do_search(self, query):
+    def do_search_dataset(self, query):
         """
         """
-        self.ret = set()
-        print("cardinality of { ?s ?p ?o }: %i" % cardinality)
-        for triple in triples:
-            s, p, o = triple
-            if o.startswith("http://dbpedia.org/ontology/"):
-                obj = o.split('/')[-1]
-                if o not in self.ret and Levenshtein.distance(obj, query) < self.distance:
-                    print(o)
-                    self.ret.add(o)
+        with open('index.txt', 'r') as index:
+            self.ret = []
+            for k in index.readlines():
+                k = k.strip()
+                dist = Levenshtein.distance(k, query)
+                if dist < self.distance:
+                    self.ret.append((k, dist))
+        for idx, k in enumerate(self.ret):
+            print('{}: {} (dist: {})'.format(idx, k[0], k[1]))
 
-        return True
+
+    def do_select_dataset(self, idx):
+        self.ds = "http://dbpedia.org/ontology/{}".format(self.ret[int(idx)][0])
+        print("{} selected!".format(self.ds))
+        print("Process dataset... please wait!")
+        query(self.ds)
+        Print('Done!')
+
 
     def do_show_set(self):
         """
